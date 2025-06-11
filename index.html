@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>选择题刷题系统</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>选择题刷题系统</h1>
+            <div class="nav-bar">
+                <button id="normalModeBtn" class="mode-btn active"><i class="fas fa-book"></i> 练习模式</button>
+                <button id="errorBookBtn" class="mode-btn"><i class="fas fa-exclamation-circle"></i> 错题本</button>
+            </div>
+        </header>
+
+        <div class="input-section">
+            <textarea id="questionInput" placeholder="请粘贴题目，格式如：
+Vue 是什么框架？
+A. 后端框架
+B. 前端框架
+C. 数据库
+D. 操作系统
+答案：B
+
+JavaScript 是强类型语言？
+A. 对
+B. 错
+答案：B
+
+也支持括号内标注答案的格式：
+19.（C）是前无古人的伟大事业，没有现成的方案可以遵循。
+A. 马克思主义
+B. 社会主义
+C. 中国特色社会主义
+D. 社会主义现代化"></textarea>
+            <button id="parseButton">开始答题</button>
+        </div>
+
+        <div class="quiz-section hidden">
+            <div class="progress-bar">
+                <div class="progress"></div>
+            </div>
+
+            <div class="mode-info"></div>
+
+            <div class="question-card">
+                <div class="question-number"></div>
+                <div class="question-text"></div>
+                <div class="options-container"></div>
+                <div class="feedback hidden"></div>
+                
+                <div class="navigation-buttons">
+                    <button id="prevBtn" disabled>上一题</button>
+                    <button id="nextBtn" disabled>下一题</button>
+                </div>
+            </div>
+
+            <div class="question-nav">
+                <div id="questionIndicators" class="question-indicators"></div>
+            </div>
+
+            <div class="stats">
+                <span class="correct-count">0</span> 正确 /
+                <span class="total-count">0</span> 总题数
+                <span class="error-book-count hidden">错题本: <span class="error-count">0</span> 题</span>
+                
+                <button id="backToInputBtn" class="secondary-btn back-btn">
+                    <i class="fas fa-undo"></i> 返回输入
+                </button>
+            </div>
+        </div>
+
+        <!-- 错题集合列表视图 -->
+        <div class="collection-list-section hidden">
+            <div class="section-header">
+                <h2>错题练习集</h2>
+                <p class="section-desc">您所有的错题练习集都保存在这里，点击练习集可以开始练习</p>
+            </div>
+            
+            <div class="collections-container">
+                <!-- 错题集合列表将动态生成 -->
+            </div>
+            
+            <div class="session-error-actions">
+                <div id="sessionErrorInfo" class="hidden">
+                    <p>当前会话中有 <span class="session-error-count">0</span> 道错题未保存</p>
+                    <button id="saveSessionErrorsBtn" class="accent-btn">
+                        <i class="fas fa-save"></i> 保存为错题练习集
+                    </button>
+                </div>
+            </div>
+            
+            <div class="collection-list-actions">
+                <button id="backToNormalFromListBtn" class="secondary-btn">
+                    <i class="fas fa-arrow-left"></i> 返回练习
+                </button>
+            </div>
+        </div>
+        
+        <!-- 错题练习返回列表按钮 -->
+        <div class="error-practice-actions hidden">
+            <button id="backToCollectionListBtn" class="secondary-btn">
+                <i class="fas fa-list"></i> 返回错题集列表
+            </button>
+        </div>
+    </div>
+
+    <!-- 重命名错题集对话框 -->
+    <div class="modal-overlay hidden" id="renameModal">
+        <div class="modal-content">
+            <h3>重命名错题集</h3>
+            <input type="text" id="collectionNameInput" placeholder="输入新名称">
+            <div class="modal-actions">
+                <button id="cancelRenameBtn" class="secondary-btn">取消</button>
+                <button id="confirmRenameBtn" class="accent-btn">确认</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 错题本为空提示 -->
+    <div class="error-book-empty hidden">
+        <div class="empty-message">
+            <i class="fas fa-check-circle"></i>
+            <p>您的错题本暂时是空的</p>
+            <button id="backToNormalBtn">返回练习</button>
+        </div>
+    </div>
+
+    <div class="floating-error-book" style="display: none;">
+        <button id="floatingErrorBookBtn" title="错题本">
+            <i class="fas fa-exclamation-circle"></i>
+            <span class="error-badge">0</span>
+        </button>
+    </div>
+
+    <!-- 结束答题提示 -->
+    <div class="quiz-complete-prompt hidden">
+        <div class="prompt-content">
+            <i class="fas fa-check-circle"></i>
+            <h3>答题完成！</h3>
+            <p>本次答题共有 <span class="session-error-count">0</span> 道错题</p>
+            <div class="prompt-actions">
+                <button id="saveAndViewErrorsBtn" class="accent-btn">
+                    <i class="fas fa-save"></i> 保存错题并查看
+                </button>
+                <button id="ignoreAndContinueBtn" class="secondary-btn">
+                    继续答题
+                </button>
+                <button id="backToInputFromPromptBtn" class="secondary-btn">
+                    <i class="fas fa-undo"></i> 返回输入页面
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="parser.js"></script>
+    <script src="errorbook.js"></script>
+    <script src="renderer.js"></script>
+    <script src="quiz.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
